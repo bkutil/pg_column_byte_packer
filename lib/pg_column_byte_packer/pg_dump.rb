@@ -21,10 +21,25 @@ module PgColumnBytePacker
               qualified_table: current_table_name,
               lines: current_block_body
             )
+            in_constraint = false
+            constraint_depth = 0
+
             table_lines = table_lines.map.with_index do |column_line, index|
+              if column_line =~ /CONSTRAINT.*?CHECK/
+                in_constraint = true
+              end
+
+              if in_constraint
+                constraint_depth += (column_line.count("(") - column_line.count(")"))
+              end
+
+              if constraint_depth.zero?
+                in_constraint = false
+              end
+
               has_trailing_comma = column_line =~ /,\s*\Z/
               last_line = index == table_lines.size - 1
-              if !last_line && !has_trailing_comma
+              if !in_constraint && !last_line && !has_trailing_comma
                 column_line.sub(/(.+)(\s*)\Z/, '\1,\2')
               elsif last_line && has_trailing_comma
                 column_line.sub(/,(\s*)\Z/, '\1')

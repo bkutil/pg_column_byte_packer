@@ -956,6 +956,38 @@ RSpec.describe PgColumnBytePacker::PgDump do
       expect(contents).to include(expected_statement)
     end
 
+    it "does not insert commas into multi-line constraints" do
+      ActiveRecord::Base.connection.execute <<~SQL
+      CREATE TABLE public.tests (
+          i integer,
+          c text,
+          CONSTRAINT tests_postitive_negative CHECK (
+          CASE
+            WHEN (c = '+') THEN (i > 0)
+            WHEN (c = '-') THEN (i < 0)
+            ELSE true
+          END)
+      );
+      SQL
+
+      contents = dump_table_definitions_reordered()
+
+      expected_statement = <<~SQL
+      CREATE TABLE public.tests (
+          i integer,
+          c text,
+          CONSTRAINT tests_postitive_negative CHECK (
+      CASE
+            WHEN (c = '+') THEN (i > 0)
+            WHEN (c = '-') THEN (i < 0)
+            ELSE true
+      END)
+      );
+      SQL
+
+      expect(contents).to include(expected_statement)
+    end
+
     it "properly handles table config modifiers" do
       ActiveRecord::Base.connection.execute <<~SQL
         CREATE TABLE tests (
