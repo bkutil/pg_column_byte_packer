@@ -16,8 +16,8 @@ module PgColumnBytePacker
            nil
          end
 
-        if parsed && (column_def = parsed.tree[0]["RawStmt"]["stmt"]["CreateStmt"]["tableElts"][0]["ColumnDef"])
-          type_identifiers = column_def["typeName"]["TypeName"]["names"].map { |s| s["String"]["str"] }
+        if parsed && (column_def = parsed.tree.stmts[0].stmt.create_stmt.table_elts[0].column_def)
+          type_identifiers = column_def.type_name.names.map { |n| n.string.str }
           case type_identifiers.size
           when 1
             # Do nothing; we already have a bare type.

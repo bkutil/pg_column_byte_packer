@@ -71,8 +71,8 @@ module PgColumnBytePacker
          end
 
         # Ignore CONSTRAINT definitions etc.
-        if parsed && (column_def = parsed.tree[0]["RawStmt"]["stmt"]["CreateStmt"]["tableElts"][0]["ColumnDef"])
-          column = column_def["colname"]
+        if parsed && (column_def = parsed.tree.stmts[0].stmt.create_stmt.table_elts[0].column_def)
+          column = column_def.colname
 
           values = connection.select_rows(<<~SQL, "Column and Type Info").first
             SELECT

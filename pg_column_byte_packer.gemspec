@@ -33,5 +33,5 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "pg"
   spec.add_dependency "activerecord", ">= 6.1", "< 7.2"
-  spec.add_dependency "pg_query", "< 2.0"
+  spec.add_dependency "pg_query", "~> 2.0"
 end
